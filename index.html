@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Any of You</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#e6e1d6;--panel:#f4f0e7;--ink:#20222a;--dim:#6b6d75;--line:#c9c2b3;--vo:#3d5a78;--btn:#20222a;--btnink:#f4f0e7}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d0f13;--panel:#181b21;--ink:#ece8df;--dim:#8b8e97;--line:#2b2f38;--vo:#9fb8d2;--btn:#ece8df;--btnink:#181b21}}
+:root[data-theme="dark"]{--bg:#0d0f13;--panel:#181b21;--ink:#ece8df;--dim:#8b8e97;--line:#2b2f38;--vo:#9fb8d2;--btn:#ece8df;--btnink:#181b21}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:Georgia,"Iowan Old Style","Times New Roman",serif;-webkit-tap-highlight-color:transparent}
+#app{max-width:780px;height:100%;margin:0 auto;display:flex;flex-direction:column}
+#scene{position:relative;flex:1 1 48%;min-height:0;overflow:hidden;background:linear-gradient(#22262d,#191c22 70%,#13151a);border-bottom:1px solid var(--line)}
+#poster{position:absolute;left:50%;top:9%;transform:translateX(-50%);width:26%;height:30%;background:#39424a;border:2px solid #1a1d22;transform-origin:top left;rotate:-1.5deg;display:flex;align-items:flex-end;justify-content:center;font-size:clamp(7px,1.5vw,11px);letter-spacing:.14em;color:#9aa4ab;padding-bottom:5%;box-sizing:border-box;background-image:linear-gradient(160deg,#4a5661 0 55%,#2c343c 55%)}
+#win{position:absolute;right:6%;top:8%;width:15%;height:34%;background:#0b0d11;border:3px solid #3a3f48}
+#win i{position:absolute;left:50%;top:18%;width:3px;height:60%;background:#5b5f68}
+#win b{position:absolute;left:calc(50% - 5px);top:12%;width:13px;height:9px;border-radius:50%;background:#e8c46a;box-shadow:0 0 18px 6px #e8c46a55}
+#rad{position:absolute;right:3%;bottom:13%;width:9%;height:22%;background:repeating-linear-gradient(90deg,#4a4e57 0 6px,#2b2e35 6px 9px);border-radius:3px}
+#chars{position:absolute;left:0;right:0;bottom:4%;display:flex;justify-content:space-around;align-items:flex-end;padding:0 3%}
+.char{display:flex;flex-direction:column;align-items:center;opacity:.5;transition:opacity .35s,transform .35s;position:relative}
+.char.on{opacity:1;transform:translateY(-6px)}
+.char.ghost{opacity:.16!important}
+.head{width:clamp(22px,5.2vw,38px);aspect-ratio:1;border-radius:50%;background:var(--c)}
+.body{width:clamp(44px,10vw,74px);height:clamp(44px,11vw,80px);margin-top:3px;border-radius:40% 40% 6px 6px;background:var(--c);filter:brightness(.8)}
+.nm{font-size:clamp(9px,1.9vw,12px);color:#b7b3a9;margin-top:5px;letter-spacing:.04em}
+.phone{position:absolute;bottom:6px;right:-8px;width:10px;height:16px;background:#0a0a0c;border:1px solid #555;border-radius:2px}
+.buzz .phone{background:#dfe8f2;box-shadow:0 0 14px 5px #9fc3ea99}
+.toast{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);margin-bottom:8px;background:#e9edf2;color:#14171c;font:11px system-ui,sans-serif;padding:4px 9px;border-radius:9px;white-space:nowrap;opacity:0;transition:opacity .3s}
+.toast.show{opacity:1}
+#scene.buzz .char[data-k=E]{opacity:1}
+#scene.flick::after{content:"";position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;animation:fl 1.4s 1 steps(1)}
+@keyframes fl{0%{opacity:0}8%{opacity:.07}10%{opacity:0}46%{opacity:0}48%{opacity:.09}50%{opacity:0}78%{opacity:.05}80%{opacity:0}}
+#scene.inner .char:not(.on){opacity:.22}
+#scene.inner{filter:saturate(.6)}
+#box{flex:0 0 auto;min-height:38%;max-height:52%;overflow:auto;background:var(--panel);padding:16px 20px calc(18px + env(safe-area-inset-bottom,0px));box-sizing:border-box;cursor:pointer}
+#who{font-size:13px;letter-spacing:.06em;color:var(--dim);min-height:18px;margin-bottom:6px}
+#txt{font-size:clamp(16px,2.6vw,19px);line-height:1.6;max-width:62ch;animation:in .3s ease}
+@keyframes in{from{opacity:0}to{opacity:1}}
+#txt.n{color:var(--dim);font-style:italic}
+#txt.v{color:var(--vo);font-style:italic}
+#hint{margin-top:12px;font-size:12px;color:var(--dim)}
+.ch{display:block;width:100%;text-align:left;margin:8px 0 0;padding:11px 14px;background:transparent;color:var(--ink);border:1px solid var(--dim);border-radius:3px;font:inherit;font-size:clamp(15px,2.4vw,17px);cursor:pointer}
+.ch:hover,.ch:focus-visible{background:var(--btn);color:var(--btnink);outline:none}
+#end{position:absolute;inset:0;background:#0b0c0f;display:none;place-items:center;text-align:center;color:#e9e6df;padding:24px;box-sizing:border-box;z-index:5}
+#end.show{display:grid}
+#end>*{grid-area:1/1}
+#card{border:1px solid #3a3f48;border-radius:14px;padding:14px 20px;background:#15181d;font-family:system-ui,sans-serif;font-size:14px;line-height:1.5;text-align:left;opacity:0;animation:cardio 4.6s ease forwards}
+#card small{display:block;color:#8b93a0}
+@keyframes cardio{0%{opacity:0}15%,70%{opacity:1}100%{opacity:0}}
+#qbox{max-width:30ch;opacity:0;animation:in 1.6s ease 5s forwards}
+#q{font-size:clamp(22px,5.2vw,34px);line-height:1.3}
+#q2{margin-top:22px;font-size:clamp(14px,2.6vw,17px);line-height:1.5;color:#9a9ca4;font-style:italic;opacity:0;animation:in 1.6s ease 8.5s forwards}
+#again{align-self:end;margin-bottom:8px;opacity:0;animation:in 1s ease 11s forwards;padding:8px 18px;background:transparent;color:#8b8e97;border:1px solid #3a3f48;border-radius:3px;font:inherit;font-size:14px;cursor:pointer}
+@media (prefers-reduced-motion:reduce){#scene.flick::after{animation:none}#txt,#qbox,#q2,#again{animation:none;opacity:1}#card{display:none}}
+</style>
+<script type='text/javascript' nonce='Hgu+Iiq9ZIFiHe9m6hBPFA==' src='https://dc406688-506d-4b00-b9b8-e3600c618c7a.frame.claudeusercontent.com/SjELnmuKHi5XOHSk_jsDyZQpnbhbryVfVxtrO86BN161seqImXv-FwUP7i321d11G7tkYOApx3qj6IOsyGLQXRaoc5vcAEadgw1M9SqsqTa3iMlxvq_LR-KlnlO-Pfwgid4RtLoQ7OP-Q6NidGmH0L07vwqZm6uh4gr63pEvB9-IQDsCuO3j2309AI4tr5mCT7CGutBWSFgsoJHH57ac7zEhFELYC_yn9PiCHEAm7deMtb6EAl8mTv-8j9K_Vfg6OO3grYVWBDNzcM11RSsUrJFautKKTZeTPVfoMmBpxOc28oqUxeumLOOcQ5g1ZnWIV2s_bMp07x8zMHPiph2LIXSPfdKnQsbAGdVLxzyvu4i8TQmRe2marUz4Mr2rNztY98jGaS7bqY1GVHdbSA0IApiY8-2BsnVki2aQFuu-8BBC9gc_U7ndc-nmRXr3yast3JL3dibjwUmHJcKXSuWANO0kTWUI_x99hqeegQKba0WHUXTdjvvGZ2KoOY7A6-fqrVjhBu-Gm2TZBcKGS_h9eLE8X5p4liYunldlDC5BXBDkl8V6r1FwKYRXpajtPOMdh44uFVpfy5xr7RqpYMP_zaTi6asFRLixNrOQ3tlsqlIb_TUOGeiFzYADyaoQmX5eK1b7rPCAJ9O2Zza02L_h19RZEx1IUkpOlDVtTr58hp-NXXex4M0BAz6NKWmWvQhbP-lSmY_xJRAjtdKsJBkfgA'></script></head>
+<body>
+<div id="app">
+ <div id="scene">
+  <div id="poster">BEGINNINGS</div>
+  <div id="win"><i></i><b></b></div>
+  <div id="rad"></div>
+  <div id="chars"></div>
+    <div id="end">
+   <div id="card"><small>Elliot's phone, face down on the chair</small>Dad<br>Monthly transfer received</div>
+   <div id="qbox"><div id="q">What was Elliot asking for when he said it?</div><div id="q2">Elliot never answers. The chapter goes looking for the answer with you.</div></div>
+   <button id="again">Play again</button>
+  </div>
+ </div>
+ <div id="box" tabindex="0" aria-live="polite">
+  <div id="who"></div>
+  <div id="txt"></div>
+  <div id="hint"></div>
+ </div>
+</div>
+<script>
+const C={E:['Elliot','#8a7fb0'],P:['Priya','#c98b7a'],H:['Dr. Hale','#7fa39a'],M:['Margaret','#b9a06a'],R:['Ruth','#a8a08c']};
+const N=t=>['n',t],V=t=>['v',t],S=(w,t)=>['s',w,t];
+const S1=[
+N("A community center room on a weekday evening in late autumn. Five plastic chairs in a circle, a jug of water, a plate of biscuits nobody touches. The radiator ticks. The poster on the wall says BEGINNINGS."),
+N("Elliot arrives late and takes the chair nearest the door. His phone buzzes once. He silences it and puts it face down on his knee."),
+['buzz','Dad'],
+V("Thursday. The Life Transitions group, which is what they call it when they cannot call it anything else. Six chairs, five people, and I am the only man, which the poster does not mention."),
+V("I count the women the way I count everything, by what they have. Margaret has the coat. Priya has the child, or the monitor, which comes to the same thing. The one by the radiator has nothing I can name, so I do not count her."),
+S('H',"Margaret, you said last week you wanted to start tonight."),
+S('M',"I did say that. I say a lot of things on Wednesdays. My husband paid for this course. He put it on the card and sent me a message with a little thumbs up. Fourteen years, two children, and I am approved of by an emoji."),
+V("She has a husband who pays for everything and she is offended by the thumb."),
+['c',"What do you make of her?",[
+ ["She should be grateful.",[V("Grateful is the word. Nobody has ever thumbs-upped me into a paid course.")]],
+ ["She should get a job.",[V("A job. It is not complicated. Somebody in this room should say it, and it will not be Dr. Hale.")]],
+ ["Say nothing.",[V("I say nothing. Silence is cheap, and I have learned to spend little.")]]]],
+S('M',"I stopped working after the second one. We decided that together, and I want to be fair about it. But I do not have a bank account with only my name on it. I have a card. It belongs to a person who has never once asked me what I bought. I could buy a boat and the answer would be the same."),
+S('H',"What would you want the answer to be?"),
+S('M',"I would want it to matter."),
+['flick',1],
+N("Silence. The tube flickers. Elliot's hand tightens on the phone."),
+V("It would matter if she earned it. That is the whole trick, and nobody in this room has ever done it."),
+S('P',"Can I say something ugly?"),
+S('H',"This room is for ugly."),
+S('P',"Some days I love it. The being looked after. I wake up and there is nothing I must prove to anyone, and the whole day is just there, like a table somebody set. By noon I hate myself for it, because somewhere I learned that a woman who is supported has agreed to be convenient."),
+['c',"Where do you look?",[
+ ["At her. Listen carefully.",[V("She admits it. Some days she loves it. Listen to that, and then listen to her complain.")]],
+ ["Out the window.",[V("I look at the window. One car, one streetlamp. It is easier than hearing the word nothing said that gently.")]]]],
+['buzz','Dad'],
+N("The phone buzzes against his knee. He silences it without looking, a practiced gesture. Margaret glances at it, then away."),
+S('H',"Elliot, you have been with us three weeks. You listen very closely. Would you like to say anything tonight?"),
+['c',"How do you begin?",[
+ ["Calmly, like an argument.",[S('E',"I worked ten hours a day for four years. I do not say it to be admired. I say it because I would like to know what the women in this room think happens to a man who stops.")]],
+ ["Guarded.",[S('E',"I am not here to be pitied. I worked ten hours a day for four years, and I would like to know what the women in this room think happens to a man who stops.")]]]],
+S('H',"You told us last week that the job at your father's company was going well."),
+S('E',"I left it. The environment was toxic. Nobody could work like that."),
+V("Tuesday. The elevator, sixth floor. My legs would not go up. I sat in the lobby until the guard asked if I was waiting for someone."),
+S('H',"And yet you keep coming here."),
+S('E',"Nobody here asks what I do for a living."),
+S('E',"A man is worth what he provides, and below a certain value he does not register at all. Nobody says it out loud. Every conversation I have with a woman is an assessment of whether I am a high value man or not."),
+V("It is going well. I can feel it, the reasonable voice, the calm. This is what listening looks like from the outside."),
+N("Margaret says it without triumph. Nobody laughs."),
+S('M',"So that is why you always mention the flat. The car. Your father's company."),
+S('E',"Exactly. You should see the women around my father. Every one of them there for the money. That is my whole point."),
+N("He does not look at her."),
+S('E',"And you talk about being kept as if it were a cage. I have been trying to get into that cage for years."),
+N("The word lands wrong. Priya looks up."),
+S('P',"That is what I said. Some days."),
+S('E',"You said you hate it."),
+S('P',"I said both."),
+N("Elliot stands. He does not leave. One hand on the chair, a man at the edge of a diving board."),
+['c',"What comes out of your mouth?",[
+ ["\"You call it a struggle.\"",[S('E',"You sit here and call it a struggle.")]],
+ ["\"It is a luxury with a soundtrack.\"",[S('E',"It is a luxury with a soundtrack.")]],
+ ["\"Spare me the confession.\"",[S('E',"Spare me the confession.")]]]],
+S('E',"Any of you. Lie in bed all day, be sad in a nice apartment, never see an invoice. I would trade in a second."),
+N("He hears it as a sneer. His mouth is still curled around the contempt. It takes the room a moment to do its work on the sentence."),
+N("Priya leans toward Margaret and says it almost without sound."),
+S('P',"Look at his face."),
+['reveal'],
+S('R',"Then you would get the rest."),
+S('R',"The shame. The 'but you literally have nothing to be sad about', from everyone, yourself included. It comes as one package."),
+N("Nobody speaks. Dr. Hale glances at the clock, then, gently, at the biscuits. The tube above them, for once, holds steady. A car crosses the parking lot and its headlights sweep the poster, brightening the mountain for a second and leaving it dark."),
+['flick',0],['buzz','Dad'],['end']
+];
+const $=id=>document.getElementById(id);
+let q,i,wait;
+function build(){$('chars').innerHTML=['E','P','H','M','R'].map(k=>`<div class="char${k==='R'?' ghost':''}" data-k="${k}" style="--c:${C[k][1]}"><div class="head"></div><div class="body"></div><div class="nm">${C[k][0]}</div>${k==='E'?'<div class="toast" id="toast"></div><div class="phone"></div>':''}</div>`).join('')}
+function act(k,inner){document.querySelectorAll('.char').forEach(c=>c.classList.toggle('on',c.dataset.k===k));$('scene').classList.toggle('inner',!!inner)}
+function show(who,t,cls){$('who').textContent=who;const e=$('txt');e.className=cls;e.textContent=t;e.style.animation='none';void e.offsetWidth;e.style.animation='';$('hint').textContent='Tap or press space to continue'}
+function step(){
+ if(wait)return;
+ const n=q[i++];if(!n)return;
+ const k=n[0];
+ if(k==='n'){act(null);show('',n[1],'n')}
+ else if(k==='v'){act('E',1);show('Elliot (in his head)',n[1],'v')}
+ else if(k==='s'){act(n[1]);show(C[n[1]][0],n[2],'')}
+ else if(k==='flick'){const s=$('scene');s.classList.remove('flick');if(n[1]){void s.offsetWidth;s.classList.add('flick');setTimeout(()=>s.classList.remove('flick'),1500)}step()}
+ else if(k==='buzz'){const s=$('scene'),t=$('toast');s.classList.add('buzz');t.textContent=n[1]||'';t.classList.add('show');setTimeout(()=>{s.classList.remove('buzz');t.classList.remove('show')},1800);step()}
+ else if(k==='reveal'){document.querySelector('[data-k=R]').classList.remove('ghost');step()}
+ else if(k==='c'){wait=1;act('E',1);$('who').textContent='';const e=$('txt');e.className='';e.textContent=n[1];$('hint').innerHTML='';
+  n[2].forEach(o=>{const b=document.createElement('button');b.className='ch';b.textContent=o[0];b.onclick=ev=>{ev.stopPropagation();wait=0;q.splice(i,0,...o[1]);$('hint').innerHTML='';step()};$('hint').appendChild(b)})}
+ else if(k==='end'){act(null);$('who').textContent='';$('txt').textContent='';$('hint').textContent='';$('end').classList.add('show')}
+}
+function start(){q=S1.slice();i=0;wait=0;$('end').classList.remove('show');$('scene').classList.remove('flick','inner');build();step()}
+$('box').addEventListener('click',e=>{if(!e.target.closest('.ch'))step()});
+document.addEventListener('keydown',e=>{if(e.code==='Space'||e.code==='Enter'){if(document.activeElement.classList.contains('ch'))return;e.preventDefault();step()}});
+$('again').onclick=start;
+start();
+</script>
+</body>
+</html>
